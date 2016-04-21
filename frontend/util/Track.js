@@ -6,12 +6,12 @@ var Track = function (attributes) {
 Track.prototype.startRecording = function () {
   this.roll = [];
 
-  this.startTime = new Date();
+  this.startTime = Date.now();
 };
 
 Track.prototype.addNotes = function(notes) {
-  var currentTime = new Date();
-  this.roll.push({ timeSlice: (currentTime - this.StartTime),
+  var currentTime = Date.now();
+  this.roll.push({ timeSlice: (currentTime - this.startTime),
     notes: notes});
 };
 

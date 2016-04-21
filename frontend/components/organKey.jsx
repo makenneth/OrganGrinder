@@ -12,6 +12,7 @@ var OrganKey = React.createClass({
   componentDidMount: function() {
     var freq = TONES[this.props.noteName];
     this.note = new Note(freq);
+
     this.listener = KeyStore.addListener(this.start);
   },
   componentWillUnmount: function() {

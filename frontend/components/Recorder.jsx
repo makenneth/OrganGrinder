@@ -5,35 +5,24 @@ var TONES = require('../constants/tones.js');
 var Note = require('../util/note.js');
 var KeyActions = require('../actions/KeyActions');
 
-var Mapping = {
-  65: "C5",
-  87: "Cs5",
-  83: "D5",
-  69: "Ds5",
-  68: "E5",
-  70: "F5",
-  84: "Fs5",
-  71: "G5",
-  89: "Gs5",
-  72: "A5",
-  85: "As5",
-  74: "B5",
-  75: "C6"
-};
 
 var Recorder = React.createClass({
   getInitialState: function() {
     return {
       isRecording: false,
-      Track: {},
+      Track: new Track(""),
       playing: false
     };
   },
 
   componentDidMount: function() {
-    $('').on('keydown', this.recordNotes);
+    KeyStore.addListener(this._keysChanged);
   },
-
+  _keysChanged: function() {
+    if (this.state.isRecording){
+      this.state.Track.addNotes(KeyStore.all());
+    }
+  },
   componentWillUnmount: function() {
     this.listener.remove();
   },
