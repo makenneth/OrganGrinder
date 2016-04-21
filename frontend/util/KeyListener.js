@@ -19,13 +19,17 @@ var Mapping = {
 
 
 var keyup = function(e) {
-  var key = Mapping[e.keyCode];
-  KeyAction.keyup(key);
+  if (e.target.tagName !== "INPUT"){
+    var key = Mapping[e.keyCode];
+    KeyAction.keyup(key);
+  }
 };
 
 var keydown = function(e) {
-  var key = Mapping[e.keyCode];
-  KeyAction.keydown(key);
+  if (e.target.tagName !== "INPUT"){
+    var key = Mapping[e.keyCode];
+    KeyAction.keydown(key);
+  }
 };
 
 

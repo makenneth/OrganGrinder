@@ -27082,12 +27082,11 @@
 /* 192 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var React = __webpack_require__(7);
-	var Track = __webpack_require__(193);
-	var KeyStore = __webpack_require__(174);
-	var TONES = __webpack_require__(173);
-	var Note = __webpack_require__(6);
-	var KeyActions = __webpack_require__(194);
+	var React = __webpack_require__(7),
+	    Track = __webpack_require__(193),
+	    KeyStore = __webpack_require__(174),
+	    KeyActions = __webpack_require__(194),
+	    TrackActions = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"../actions/TrackActions\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
 	
 	var Recorder = React.createClass({
 	  displayName: 'Recorder',
@@ -27095,7 +27094,7 @@
 	  getInitialState: function () {
 	    return {
 	      isRecording: false,
-	      Track: new Track(""),
+	      track: new Track(""),
 	      playing: false
 	    };
 	  },
@@ -27105,7 +27104,7 @@
 	  },
 	  _keysChanged: function () {
 	    if (this.state.isRecording) {
-	      this.state.Track.addNotes(KeyStore.all());
+	      this.state.track.addNotes(KeyStore.all());
 	    }
 	  },
 	  componentWillUnmount: function () {
@@ -27114,60 +27113,52 @@
 	  recordNotes: function (e) {
 	    if (this.state.isRecording) {
 	      var key = Mapping[e.keyCode];
-	      this.state.Track.addNotes([key]);
+	      this.state.track.addNotes([key]);
 	    }
 	  },
 	  toggleRecording: function (e) {
 	    if (e !== undefined) {
 	      if (!this.state.isRecording) {
-	        this.state.Track = new Track({ name: "wtf" });
-	        this.state.Track.startRecording();
+	        this.state.track.startRecording();
 	        this.setState({ isRecording: true });
 	      } else {
 	        this.setState({ isRecording: false });
-	        this.state.Track.stopRecording();
+	        this.state.track.stopRecording();
+	        this.saveTrack();
 	      }
 	    }
 	  },
-	
+	  saveTrack: function () {
+	    TrackActions.saveTrack(this.state.track);
+	  },
 	  play: function (e) {
 	    var playBackStartTime = Date.now(),
 	        currentNote = 0;
 	    var intervalID = setInterval(function () {
-	      var newNote = this.state.Track.roll[currentNote];
+	      var newNote = this.state.track.roll[currentNote];
 	      if (Date.now() - playBackStartTime > newNote.timeSlice) {
 	        KeyActions.stopPlayback();
 	        KeyActions.playback(newNote.notes);
 	        currentNote++;
 	      }
-	      if (currentNote === this.state.Track.roll.length - 1) {
+	      if (currentNote === this.state.track.roll.length - 1) {
 	        clearInterval(intervalID);
 	      }
 	    }.bind(this), 10);
 	  },
 	
 	  changeTrackName: function (e) {
-	    this.setState({ trackName: e.currentTarget.value });
+	    this.state.track.name = e.currentTarget.value;
 	  },
 	
 	  render: function () {
-	    var buttonText;
-	    if (this.state.isRecording) {
-	      buttonText = "Stop Recording";
-	    } else {
-	      buttonText = "Start Recording";
-	    }
-	
-	    var playButton;
-	    if (this.state.playing) {
-	      playButton = "Stop";
-	    } else {
-	      playButton = "Play!";
-	    }
+	    var buttonText = this.state.isRecording ? "Stop Recording" : "Start Recording";
+	    var playButton = this.state.playing ? "Stop" : "Play!";
 	
 	    return React.createElement(
 	      'div',
 	      null,
+	      React.createElement('input', { type: 'text', onChange: this.changeTrackName }),
 	      React.createElement(
 	        'button',
 	        { className: 'recordingButton', onClick: this.toggleRecording },
@@ -27272,13 +27263,17 @@
 	};
 	
 	var keyup = function (e) {
-	  var key = Mapping[e.keyCode];
-	  KeyAction.keyup(key);
+	  if (e.target.tagName !== "INPUT") {
+	    var key = Mapping[e.keyCode];
+	    KeyAction.keyup(key);
+	  }
 	};
 	
 	var keydown = function (e) {
-	  var key = Mapping[e.keyCode];
-	  KeyAction.keydown(key);
+	  if (e.target.tagName !== "INPUT") {
+	    var key = Mapping[e.keyCode];
+	    KeyAction.keydown(key);
+	  }
 	};
 	
 	module.exports = {
